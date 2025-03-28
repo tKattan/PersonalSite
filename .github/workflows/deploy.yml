@@ -7,23 +7,29 @@ on:
 
 jobs:
   deploy:
+    environment: Production
     runs-on: ubuntu-latest
 
     steps:
       # 1. Checkout repository
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # 2. Set up Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      # 3. Install dependencies and build the Angular app
-      - name: Install dependencies and Build
+      # 3. Install dependencies
+      - name: Install dependencies
         run: |
           npm install
+
+      # 4. Build the app using the production configuration ("ng build PersonalSite --configuration production")
+      - name: Build the Angular app
+        run: |
           npm run buildProd
 
       # 4. Set up SSH keys and known_hosts
