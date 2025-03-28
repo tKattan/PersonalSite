@@ -41,10 +41,14 @@ jobs:
           # Add your server to known_hosts to avoid prompt issues.
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
+
+
       # 5. Copy files using scp
       - name: Copy build files to server
         run: |
-          scp -r dist/personal-site/browser/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/mean/client/dist/personal-site/browser/
+          pwd
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "rm -rf /home/${{ secrets.SERVER_USER }}/client/*"
+          scp -r dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/client/
 
       # 6. Restart PM2 process via SSH on the server
       - name: Restart PM2 Process
