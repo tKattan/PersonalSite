@@ -47,7 +47,7 @@ jobs:
       - name: Copy build files to server
         run: |
           pwd
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "rm -rf /home/${{ secrets.SERVER_USER }}/client/*"
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "rm -rf /home/${{ secrets.SERVER_USER }}/client/dist/*"
           scp -r dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/client/
 
       # 6. Restart PM2 process via SSH on the server
