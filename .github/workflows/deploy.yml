@@ -1,0 +1,46 @@
+name: Deploy Angular App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2. Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      # 3. Install dependencies and build the Angular app
+      - name: Install dependencies and Build
+        run: |
+          npm install
+          npm run buildProd
+
+      # 4. Set up SSH keys and known_hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Add your server to known_hosts to avoid prompt issues.
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      # 5. Copy files using scp
+      - name: Copy build files to server
+        run: |
+          scp -r dist/personal-site/browser/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/mean/client/dist/personal-site/browser/
+
+      # 6. Restart PM2 process via SSH on the server
+      - name: Restart PM2 Process
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "pm2 restart personal_site || pm2 serve /home/mean/client/dist/personal-site/browser/ 3000 --name personal_site"
